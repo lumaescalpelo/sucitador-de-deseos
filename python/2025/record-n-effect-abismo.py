@@ -69,16 +69,14 @@ def record_audio():
         channels=1,
         device=input_device,
         dtype="float32"
-    ):
+    ) as stream:
         while button.is_pressed:
-            data, _ = sd.rec(
-                frames=fs,
-                samplerate=fs,
-                channels=1,
-                dtype="float32"
-            )
-            sd.wait()
+            data, _ = stream.read(fs)
             chunks.append(data * gain)
+
+    if not chunks:
+        print("No se capturó audio")
+        return None
 
     audio = np.concatenate(chunks, axis=0)
     audio = adjust_bit_depth(audio, bit_depth)
